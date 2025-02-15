@@ -1,0 +1,14 @@
+version: "3"
+services:
+  bot_service:
+    build: .
+    command: python main.py
+    volumes:
+      - .:/code
+    ports:
+      - "9999:9999"
+    environment:
+      BOT_TOKEN: "your_bot_token"
+      BASE_WEBHOOK_URL: "https://my.host.name"
+      WEBHOOK_PATH: "/path/to/webhook"
+      SECRET_TOKEN: "your_secret_token"
