@@ -68,6 +68,7 @@ def decimal_to_base36(n):
 async def do_scan() -> None:
     """Send the alarm message."""
     wallets = timer_task_storage.get_value('wallets', [])
+    logger.info(f'start run scan {wallets} ')
     chat_ids = timer_task_storage.get_value('chat_ids', [])
     for wallet in wallets:
         await scan_one(wallet, chat_ids)
