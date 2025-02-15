@@ -1,14 +1,16 @@
 version: "3"
 services:
-  bot_service:
+  tronscan_bot_service:
     build: .
     command: python main.py
     volumes:
       - .:/code
     ports:
-      - "9999:9999"
+      - "9998:9998"
     environment:
       BOT_TOKEN: "your_bot_token"
       BASE_WEBHOOK_URL: "https://my.host.name"
       WEBHOOK_PATH: "/path/to/webhook"
       SECRET_TOKEN: "your_secret_token"
+      PASSWORD: "your_password"
+      TRONSCAN_API_KEY: "your_tronscan_api_key"

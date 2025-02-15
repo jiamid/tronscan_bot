@@ -13,13 +13,11 @@ class Settings(BaseSettings):
         env_file_encoding='utf-8')
 
     debug: bool = True
-    # bot_token: str = '1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    bot_token: str = '7678794064:AAGlcHBAhqFKFH31wC4nKJpa7i6V08oIy4Y'
+    bot_token: str = '1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     base_webhook_url: str = 'https://my.host.name'
     webhook_path: str = '/path/to/webhook'
     password: str = 'jiamid'
     secret_token: str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'  # Additional security token for webhook
-    # tronscan_api_key: str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    tronscan_api_key: str = '0ea19851-df52-4fe3-b686-9a3251d0561f'
+    tronscan_api_key: str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 settings = Settings()
