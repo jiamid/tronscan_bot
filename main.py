@@ -56,4 +56,4 @@ if __name__ == '__main__':
 
     init_logging()
     logger.info("bot start")
-    run(app, host='0.0.0.0', port=9999)
+    run(app, host='0.0.0.0', port=settings.port)
