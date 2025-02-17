@@ -10,7 +10,7 @@ from aiogram.types import Message
 from tg_bot.bot import telegram_router
 from commonts.storage_manager import timer_task_storage
 from commonts.scheduler_manager import scheduler_manager
-from tg_bot.handlers.timer_scan import do_scan
+from tg_bot.handlers.timer_scan import do_scan, scan_wallet_transfers
 from commonts.settings import settings
 from commonts.async_tronscan import TronscanApi
 
@@ -36,13 +36,28 @@ async def scan_wallet(message: Message) -> None:
         "is_black_list": "账户是否在黑名单中"
     }
     text = f'*{addr}*\n'
-    for key,value in safe_info_map.items():
+    for key, value in safe_info_map.items():
         flag = '否'
-        if safe_data.get(key,False):
+        if safe_data.get(key, False):
             flag = '是'
         text += f'>{value}: *{flag}* \n'
 
     await message.answer(text, parse_mode='MarkdownV2')
+
+
+@telegram_router.message(Command("scan_transfers"))
+async def scan_transfers(message: Message) -> None:
+    white_chat_ids = timer_task_storage.get_value('chat_ids', [])
+    chat_id = message.chat.id
+    if chat_id not in white_chat_ids:
+        await message.answer(f'非法指令')
+        return
+    args = message.text.split()[1:]
+    if not args:
+        await message.answer("Pls With Address")
+        return
+    wallet = args[0]
+    await scan_wallet_transfers(wallet, [chat_id])
 
 
 @telegram_router.message(Command("join"))

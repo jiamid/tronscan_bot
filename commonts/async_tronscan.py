@@ -36,7 +36,7 @@ class TronscanApi:
         async with aiohttp.ClientSession(connector=conn, timeout=timeout) as session:
             async with session.request(method=method, url=url, **kwargs) as resp:
                 data = await resp.json()
-                return data
+        return data
 
     async def r_get(self, api, params):
         data = await self.request('GET', api, params=params, headers={

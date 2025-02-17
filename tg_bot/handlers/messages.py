@@ -34,6 +34,7 @@ async def cmd_help(message: Message) -> None:
                          f'\n`/add_wallet 地址`'
                          f'\n`/del_wallet 地址`'
                          f'\n`/scan_wallet 地址`'
+                         f'\n`/scan_transfers 地址`'
                          f'\n`/join`'
                          f'\n`/exit`'
                          f'\n\n', parse_mode='MarkdownV2')

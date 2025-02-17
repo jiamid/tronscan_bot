@@ -14,16 +14,17 @@ from commonts.settings import settings
 from commonts.async_tronscan import TronscanApi
 
 
-async def scan_one(wallet: str, chat_ids: list) -> None:
-    now_ts = int(time.time() * 1000)
+async def scan_wallet_transfers(wallet: str, chat_ids: list) -> None:
+    # now_ts = int(time.time() * 1000)
     logger.info(f'start run scan {wallet} ')
     try:
         client = TronscanApi(settings.tronscan_api_key)
         start = 0
+        limit = 50
         found_end_flag = False
-        end_diff_time = 1000 * 60 * 60 * 24 * 5 # 5天
+        # end_diff_time = 1000 * 60 * 60 * 24 * 5 # 5天
         while not found_end_flag:
-            transfers_data = await client.get_transfers_by_api(wallet, start, 20)
+            transfers_data = await client.get_transfers_by_api(wallet, start, limit)
             normal_address_infos = transfers_data.get('normalAddressInfo', {})
             risk_address = []
             for normal_addr, risk_info in normal_address_infos.items():
@@ -31,11 +32,7 @@ async def scan_one(wallet: str, chat_ids: list) -> None:
                     risk_address.append(normal_addr)
             token_transfers = transfers_data.get('token_transfers', [])
             for token_transfer in token_transfers:
-                this_transfer_ts = token_transfer.get('block_ts', 0)
-                if now_ts - this_transfer_ts > end_diff_time:
-                    found_end_flag = True
-                    break
-
+                # this_transfer_ts = token_transfer.get('block_ts', 0)
                 from_address = token_transfer.get('from_address', '')
                 if from_address in risk_address:
                     transaction_id = token_transfer.get('transaction_id', '')
@@ -44,10 +41,16 @@ async def scan_one(wallet: str, chat_ids: list) -> None:
                             f'>交易详情: [{transaction_id}]({to_escape_string(detail_link)})\n')
                     for chat_id in chat_ids:
                         await send_message_to_bot(chat_id, text, parse_mode='MarkdownV2')
+                        logger.info(f'{wallet} found risk {detail_link}')
 
-            if not found_end_flag:
+                # if now_ts - this_transfer_ts > end_diff_time:
+                #     found_end_flag = True
+                #     break
+            if len(token_transfers) < limit:
+                found_end_flag = True
+            else:
                 await asyncio.sleep(1)
-                start += 20
+                start += limit
     except Exception as e:
         logger.error(f'run scan {wallet} fail {e}')
 
@@ -71,4 +74,4 @@ async def do_scan() -> None:
     logger.info(f'start run scan {wallets} ')
     chat_ids = timer_task_storage.get_value('chat_ids', [])
     for wallet in wallets:
-        await scan_one(wallet, chat_ids)
+        await scan_wallet_transfers(wallet, chat_ids)
