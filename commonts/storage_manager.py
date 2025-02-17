@@ -85,3 +85,6 @@ timer_task_storage = StorageManager('timer_task', {
     'wallets': []
 })
 
+noticed_risk_storage = StorageManager('noticed_risk',{
+    'ids':[]
+})

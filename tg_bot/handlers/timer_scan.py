@@ -9,13 +9,14 @@ from loguru import logger
 import time
 from datetime import datetime
 from commonts.storage_manager import timer_task_storage
+from commonts.storage_manager import noticed_risk_storage
 from commonts.util import to_escape_string
 from tg_bot.bot import send_message_to_bot
 from commonts.settings import settings
 from commonts.async_tronscan import TronscanApi
 
 
-async def scan_wallet_transfers(wallet: str, chat_ids: list) -> None:
+async def scan_wallet_transfers(wallet: str, chat_ids: list,ban_notice:bool=False) -> None:
     # now_ts = int(time.time() * 1000)
     logger.info(f'start run scan {wallet} ')
     try:
@@ -40,6 +41,10 @@ async def scan_wallet_transfers(wallet: str, chat_ids: list) -> None:
                     break
                 from_address = token_transfer.get('from_address', '')
                 if from_address in risk_address:
+                    transaction_id = token_transfer.get('transaction_id', '')
+                    noticed_risks = noticed_risk_storage.get_value('ids',[])
+                    if transaction_id in noticed_risks:
+                        continue
                     token_decimal = token_transfer.get('tokenInfo', {}).get('tokenDecimal', 6)
                     decimal_str = '1' + '0' * token_decimal
                     quant_str = token_transfer.get('quant', '0')
@@ -47,7 +52,6 @@ async def scan_wallet_transfers(wallet: str, chat_ids: list) -> None:
                     if number < 1:
                         logger.info(f'pass less than 1 ustd')
                         continue
-                    transaction_id = token_transfer.get('transaction_id', '')
                     detail_link = f'https://tronscan.org/#/transaction/{transaction_id}'
                     transfer_time_str = transfer_time.strftime('%Y/%m/%d')
 
@@ -60,6 +64,8 @@ async def scan_wallet_transfers(wallet: str, chat_ids: list) -> None:
                     for chat_id in chat_ids:
                         await send_message_to_bot(chat_id, text, parse_mode='MarkdownV2')
                         logger.info(f'{wallet} found risk {detail_link}')
+
+                    noticed_risk_storage.add_to_key('ids', transaction_id)
 
                 # if now_ts - this_transfer_ts > end_diff_time:
                 #     found_end_flag = True
@@ -92,4 +98,4 @@ async def do_scan() -> None:
     logger.info(f'start run scan {wallets} ')
     chat_ids = timer_task_storage.get_value('chat_ids', [])
     for wallet in wallets:
-        await scan_wallet_transfers(wallet, chat_ids)
+        await scan_wallet_transfers(wallet, chat_ids,True)
