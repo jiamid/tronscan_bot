@@ -45,7 +45,7 @@ async def scan_wallet_transfers(wallet: str, chat_ids: list) -> None:
                     quant_str = token_transfer.get('quant', '0')
                     number = int(int(quant_str) / int(decimal_str))
                     if number < 1:
-                        logger.info(f'{wallet} found risk {detail_link}')
+                        logger.info(f'pass less than 1 ustd')
                         continue
                     transaction_id = token_transfer.get('transaction_id', '')
                     detail_link = f'https://tronscan.org/#/transaction/{transaction_id}'
